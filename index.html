@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GençTek Eskişehir - Vibe Coding & Tanışma Etkinliği</title>
+  
+  <!-- Fontlar ve İkonlar -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #ff4b8b;
+      --primary-light: #ff75a0;
+      --secondary: #8a2be2;
+      --accent: #00f2fe;
+      --bg-dark: #0a0514;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-sub: rgba(255, 255, 255, 0.7);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(255, 75, 139, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(138, 43, 226, 0.18) 0%, transparent 45%);
+      background-attachment: fixed;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* KARŞILAMA EKRANI */
+    #welcome-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #090312;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 25px;
+      transition: opacity 0.6s ease, visibility 0.6s ease, transform 0.6s ease;
+    }
+
+    #welcome-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(1.05);
+      pointer-events: none;
+    }
+
+    .heart-container {
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .heart-icon-big {
+      font-size: 70px;
+      color: var(--primary);
+      animation: heartPulse 1.4s infinite ease-in-out;
+      filter: drop-shadow(0 0 25px rgba(255, 75, 139, 0.8));
+    }
+
+    .welcome-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .welcome-logo-img {
+      height: 60px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px;
+      border: 1px solid var(--card-border);
+    }
+
+    .welcome-title {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-subtitle {
+      color: var(--text-sub);
+      font-size: 1rem;
+      max-width: 360px;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    .enter-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: #ffffff;
+      border: none;
+      padding: 18px 45px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(255, 75, 139, 0.4);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 100000;
+      position: relative;
+    }
+
+    .enter-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 15px 35px rgba(255, 75, 139, 0.6);
+    }
+
+    /* ANA İÇERİK */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 30px 20px 80px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .app-logo {
+      height: 55px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px;
+      border: 1px solid var(--card-border);
+    }
+
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 75, 139, 0.12);
+      border: 1px solid rgba(255, 75, 139, 0.3);
+      color: var(--primary-light);
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .main-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i {
+      color: var(--primary);
+    }
+
+    .info-text {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ÖĞRETMEN TEŞEKKÜR KARTI */
+    .teacher-card {
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.15) 0%, rgba(255, 75, 139, 0.15) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .teacher-icon {
+      font-size: 2.2rem;
+      color: var(--accent);
+      background: rgba(0, 0, 0, 0.3);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--card-border);
+      flex-shrink: 0;
+    }
+
+    .teacher-details h4 {
+      font-size: 1.1rem;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .teacher-details p {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      line-height: 1.4;
+    }
+
+    /* EKİP SADECE DERYA VE AHMET */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .team-member {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .member-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .member-info h5 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .member-info span {
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Form Elemanları */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(255, 75, 139, 0.25);
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 20px rgba(255, 75, 139, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(255, 75, 139, 0.5);
+    }
+
+    /* Vibe Card Önizleme */
+    .vibe-card-preview {
+      background: linear-gradient(135deg, rgba(255, 75, 139, 0.15) 0%, rgba(138, 43, 226, 0.15) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 22px;
+      text-align: center;
+    }
+
+    .vibe-avatar {
+      width: 70px;
+      height: 70px;
+      background: var(--bg-dark);
+      border: 2px solid var(--primary);
+      border-radius: 50%;
+      margin: 0 auto 12px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: var(--accent);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+    }
+
+    .vibe-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .vibe-role {
+      font-size: 0.88rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .vibe-quote {
+      font-size: 0.92rem;
+      font-style: italic;
+      color: var(--text-sub);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px 0;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+    }
+
+    @keyframes heartPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(255, 75, 139, 0.95);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 30px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- KARŞILAMA EKRANI -->
+  <div id="welcome-screen">
+    <div class="heart-container">
+      <i class="fa-solid fa-heart heart-icon-big"></i>
+    </div>
+    
+    <div class="welcome-logos">
+      <img src="logo.jpeg" alt="Logo" class="welcome-logo-img" onerror="this.style.display='none'">
+      <img src="cmsbllogo.jpeg" alt="CMSBL Logo" class="welcome-logo-img" onerror="this.style.display='none'">
+    </div>
+
+    <h1 class="welcome-title">Hoş Geldin! ✨</h1>
+    <p class="welcome-subtitle">GençTek Eskişehir Vibe Coding & Tanışma Etkinliği Hatıra Sayfası</p>
+
+    <button id="enterBtn" class="enter-btn" onclick="enterApp()">
+      <span>Etkinliğe Giriş Yap</span>
+      <i class="fa-solid fa-sparkles"></i>
+    </button>
+  </div>
+
+  <!-- ANA İÇERİK -->
+  <div class="container">
+    
+    <!-- Header -->
+    <header>
+      <div class="logo-bar">
+        <img src="logo.jpeg" alt="Logo" class="app-logo" onerror="this.style.display='none'">
+        <img src="cmsbllogo.jpeg" alt="CMSBL Logo" class="app-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="event-badge">
+        <i class="fa-solid fa-robot"></i> AI & Vibe Coding Atölyesi
+      </div>
+      <h1 class="main-title">Vibe Coding & <br><span class="gradient-text">Tanışma Etkinliği 💖</span></h1>
+      <p class="subtitle">Yapay zekayla fikirleri koda dökme ve tanışma günü!</p>
+    </header>
+
+    <!-- GÜNÜN ANLAM VE ÖNEMİ -->
+    <div class="glass-card">
+      <div class="card-title">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>Vibe Coding Nedir? & Günün Anlamı</span>
+      </div>
+      <p class="info-text">
+        <strong>Vibe Coding;</strong> yapay zeka araçlarını (Cursor, ChatGPT, Claude vb.) yanımıza yardımcı güç olarak alıp, karmaşık kodlarla saatlerce boğuşmadan doğrudan hayal ettiğimiz fikirleri ve projelere odaklanarak yazılım geliştirme metodudur. 🚀 <br><br>
+        GençTek Eskişehir ekibi olarak düzenlediğimiz bu 2 saatlik atölyede hem ekibimizle tanışıyor hem de AI ile ilk canlı uygulamamızı geliştirmenin heyecanını paylaşıyoruz!
+      </p>
+    </div>
+
+    <!-- DANIŞMAN HOCAYA TEŞEKKÜR -->
+    <div class="glass-card">
+      <div class="card-title">
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>Danışman Hocamıza Teşekkür</span>
+      </div>
+      <div class="teacher-card">
+        <div class="teacher-icon">
+          <i class="fa-solid fa-heart-circle-check"></i>
+        </div>
+        <div class="teacher-details">
+          <h4>Değerli Danışman Öğretmenimiz</h4>
+          <p>
+            Kulübümüzün kuruluşundan bu yana bizlere rehberlik ettiğiniz, resmi faaliyet izin süreçlerimizde ve organizasyonumuzda arka planda desteğinizi hiç esirgemediğiniz için sonsuz teşekkür ederiz! 🙏
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SADECE DERYA VE AHMET -->
+    <div class="glass-card">
+      <div class="card-title">
+        <i class="fa-solid fa-user-gear"></i>
+        <span>Etkinlik Sorumluları</span>
+      </div>
+
+      <div class="team-grid">
+        <div class="team-member">
+          <div class="member-avatar">DD</div>
+          <div class="member-info">
+            <h5>Derya DEMİRHAN</h5>
+            <span>Okul Temsilcisi</span>
+          </div>
+        </div>
+
+        <div class="team-member">
+          <div class="member-avatar">AG</div>
+          <div class="member-info">
+            <h5>Ahmet Eren GÜNDOĞAR</h5>
+            <span>Mentör Öğrenci</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOT BIRAKMA FORMU -->
+    <div class="glass-card">
+      <div class="card-title">
+        <i class="fa-solid fa-paper-plane"></i>
+        <span>Anı Defterine Not Bırak</span>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 15px;">
+        Yazdığın not doğrudan GençTek ekibimize mail olarak ulaşacak! 💌
+      </p>
+
+      <form id="noteForm" action="https://formsubmit.co/ahmett01266@gmail.com" method="POST" onsubmit="handleFormSubmit(event)">
+        <input type="hidden" name="_subject" value="💖 Yeni Vibe Coding Anı Notu!">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+
+        <div class="form-group">
+          <label for="studentName">Adın Soyadın / Sınıfın</label>
+          <input type="text" id="studentName" name="Öğrenci Adı" class="form-control" placeholder="Örn: Mehmet (10-B)" required>
+        </div>
+
+        <div class="form-group">
+          <label for="studentVibe">Geliştirmek İstediğin AI Projesi</label>
+          <input type="text" id="studentVibe" name="AI Projesi / Fikri" class="form-control" placeholder="Örn: Mobil Oyun / Yapay Zeka Chatbot">
+        </div>
+
+        <div class="form-group">
+          <label for="studentMessage">Etkinlik Hakkındaki Notun / Mesajın</label>
+          <textarea id="studentMessage" name="Mesaj" class="form-control" placeholder="Etkinlik, GençTek ekibi veya bugünkü atmosfer hakkındaki düşüncelerin..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <span>Notunu Gönder</span>
+          <i class="fa-solid fa-heart"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- DİJİTAL KART ÖNİZLEME -->
+    <div class="glass-card">
+      <div class="card-title">
+        <i class="fa-solid fa-id-card"></i>
+        <span>Bugünkü Vibe Coding Kartın</span>
+      </div>
+
+      <div class="vibe-card-preview" id="vibeCard">
+        <div class="vibe-avatar" id="cardAvatar">
+          <i class="fa-solid fa-laptop-code"></i>
+        </div>
+        <div class="vibe-name" id="cardName">GençTek Katılımcısı</div>
+        <div class="vibe-role" id="cardRole">Vibe Developer</div>
+        <div class="vibe-quote" id="cardQuote">"Kod yazmak hayal etmekle başlar, AI ile gerçeğe dönüşür."</div>
+      </div>
+    </div>
+
+    <footer>
+      <p>❤️ GençTek Eskişehir | Derya DEMİRHAN & Ahmet Eren GÜNDOĞAR</p>
+    </footer>
+
+  </div>
+
+  <!-- Toast Bildirimi -->
+  <div id="toast" class="toast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastMsg">Notun başarıyla iletildi! 💖</span>
+  </div>
+
+  <script>
+    function enterApp() {
+      const welcome = document.getElementById('welcome-screen');
+      welcome.classList.add('hidden');
+      
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 90,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#ff4b8b', '#8a2be2', '#00f2fe']
+        });
+      }
+    }
+
+    function handleFormSubmit(e) {
+      const name = document.getElementById('studentName').value;
+      const vibe = document.getElementById('studentVibe').value;
+      const msg = document.getElementById('studentMessage').value;
+
+      if(name) document.getElementById('cardName').innerText = name;
+      if(vibe) document.getElementById('cardRole').innerText = vibe;
+      if(msg) document.getElementById('cardQuote').innerText = '"' + msg + '"';
+
+      showToast("Notun maile aktarılıyor... 💌");
+
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 } });
+        confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 } });
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    document.getElementById('studentName').addEventListener('input', function(e) {
+      const val = e.target.value.trim();
+      document.getElementById('cardName').innerText = val ? val : "GençTek Katılımcısı";
+    });
+
+    document.getElementById('studentVibe').addEventListener('input', function(e) {
+      const val = e.target.value.trim();
+      document.getElementById('cardRole').innerText = val ? val : "Vibe Developer";
+    });
+  </script>
+</body>
+</html>
